@@ -4,6 +4,7 @@
 
 import time
 import psycopg2
+import bleach
 
 
 ## Get posts from database.
@@ -22,7 +23,7 @@ def GetAllPosts():
     QUERY = "SELECT * FROM posts ORDER BY time DESC;"
     cur.execute(QUERY)
     data = cur.fetchall()
-    posts = [{'content': str(row[1]), 'time': str(row[0])} for row in data]
+    posts = [{'content': str(row[0]), 'time': str(row[1])} for row in data]
     DB.close()
     return posts
 
@@ -32,8 +33,12 @@ def AddPost(content):
 
     Args:
       content: The text content of the new post.
-      
-    '''## Database connection
+
+    '''
+    ## Sanitize input
+    content = bleach.clean(content)
+
+    ## Database connection
     DB = psycopg2.connect("dbname=forum")
     cur = DB.cursor()
 
